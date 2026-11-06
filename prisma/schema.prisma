@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameAr     String    @map("name_ar")
+  slug       String    @unique
+  parentId   String?   @map("parent_id") @db.Uuid
+  parent     Category? @relation("CategoryChildren", fields: [parentId], references: [id])
+  children   Category[] @relation("CategoryChildren")
+  sortOrder  Int       @default(0) @map("sort_order")
+  products   Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  categoryId       String?           @map("category_id") @db.Uuid
+  category         Category?         @relation(fields: [categoryId], references: [id])
+  nameAr           String            @map("name_ar")
+  slug             String            @unique
+  descriptionAr    String?           @map("description_ar")
+  price            Decimal           @db.Decimal(10, 2)
+  cost             Decimal?          @db.Decimal(10, 2)
+  marginPct        Decimal?          @map("margin_pct") @db.Decimal(5, 2)
+  stock            Int               @default(0)
+  isDigital        Boolean           @default(false) @map("is_digital")
+  imageUrl         String?           @map("image_url")
+  status           String            @default("draft")
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  orderItems       OrderItem[]
+  branchStock      BranchStock[]
+  productSuppliers ProductSupplier[]
+
+  @@map("products")
+}
+
+model Branch {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  city        String?
+  isActive    Boolean       @default(true) @map("is_active")
+  branchStock BranchStock[]
+  orders      Order[]
+
+  @@map("branches")
+}
+
+model BranchStock {
+  branchId  String  @map("branch_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  stock     Int     @default(0)
+  branch    Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([branchId, productId])
+  @@map("branch_stock")
+}
+
+model Supplier {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String
+  contact            String?
+  nonCircumvention   Boolean           @default(true) @map("non_circumvention")
+  notes              String?
+  productSuppliers   ProductSupplier[]
+
+  @@map("suppliers")
+}
+
+model ProductSupplier {
+  productId   String   @map("product_id") @db.Uuid
+  supplierId  String   @map("supplier_id") @db.Uuid
+  supplierSku String?  @map("supplier_sku")
+  unitCost    Decimal? @map("unit_cost") @db.Decimal(10, 2)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  supplier    Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@id([productId, supplierId])
+  @@map("product_suppliers")
+}
+
+model Customer {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone     String?  @unique
+  name      String?
+  email     String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  orders    Order[]
+
+  @@map("customers")
+}
+
+model Order {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId      String?     @map("customer_id") @db.Uuid
+  customer        Customer?   @relation(fields: [customerId], references: [id])
+  branchId        String?     @map("branch_id") @db.Uuid
+  branch          Branch?     @relation(fields: [branchId], references: [id])
+  status          String      @default("pending")
+  subtotal        Decimal     @db.Decimal(10, 2)
+  shippingFee     Decimal     @default(15) @map("shipping_fee") @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
+  paymentMethod   String?     @map("payment_method")
+  shippingAddress Json?       @map("shipping_address")
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  items           OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId          String            @map("order_id") @db.Uuid
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String            @map("product_id") @db.Uuid
+  product          Product           @relation(fields: [productId], references: [id])
+  quantity         Int
+  unitPrice        Decimal           @map("unit_price") @db.Decimal(10, 2)
+  isDigital        Boolean           @default(false) @map("is_digital")
+  digitalDelivery  DigitalDelivery[]
+
+  @@map("order_items")
+}
+
+model DigitalDelivery {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderItemId  String    @map("order_item_id") @db.Uuid
+  orderItem    OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  downloadUrl  String    @map("download_url")
+  expiresAt    DateTime? @map("expires_at") @db.Timestamptz
+  downloadedAt DateTime? @map("downloaded_at") @db.Timestamptz
+
+  @@map("digital_deliveries")
+}
