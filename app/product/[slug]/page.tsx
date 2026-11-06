@@ -1,0 +1,145 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+
+type Product = {
+  id: string;
+  name_ar: string;
+  slug: string;
+  description_ar: string | null;
+  price: string;
+  image_url: string | null;
+  stock: number;
+  is_digital: boolean;
+  category: { name_ar: string; slug: string };
+  product_suppliers: { supplier: { name: string }; unit_cost: string }[];
+);
+
+export default function ProductPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    fetch(`/api/products/${slug}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) setProduct(null);
+        else setProduct(data);
+      })
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  function addToCart() {
+    const cart = JSON.parse(localStorage.getItem("rawaq_cart") || "[]");
+    const existing = cart.find((i: any) => i.slug === slug);
+    if (existing) {
+      existing.qty += qty;
+    } else {
+      cart.push({ slug, name_ar: product?.name_ar, price: product?.price, qty });
+    }
+    localStorage.setItem("rawaq_cart", JSON.stringify(cart));
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  }
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-stone px-6 py-20 text-center text-ivory/50" dir="rtl">
+        جاري التحميل...
+      </main>
+    );
+  }
+
+  if (!product) {
+    return (
+      <main className="min-h-screen bg-stone px-6 py-20 text-center text-ivory/50" dir="rtl">
+        المنتج غير موجود.
+        <br />
+        <Link href="/store" className="mt-4 inline-block text-gold hover:underline">
+          العودة للمتجر
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-stone text-ivory" dir="rtl">
+      <header className="border-b border-bronze/40">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <Link href="/">
+            <img src="/logo.svg" alt="رواق" className="h-10" />
+          </Link>
+          <nav className="flex gap-8 text-sm">
+            <Link href="/store" className="hover:text-gold transition">المتجر</Link>
+            <Link href="/about" className="hover:text-gold transition">من نحن</Link>
+            <Link href="/contact" className="hover:text-gold transition">تواصل</Link>
+          </nav>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="grid gap-12 md:grid-cols-2">
+          <div className="aspect-square overflow-hidden border border-bronze/40 bg-bronze/20">
+            {product.image_url && (
+              <img
+                src={product.image_url}
+                alt={product.name_ar}
+                className="h-full w-full object-cover"
+              />
+            )}
+          </div>
+
+          <div>
+            <p className="text-sm text-ivory/50">{product.category.name_ar}</p>
+            <h1 className="mt-2 text-4xl font-light">{product.name_ar}</h1>
+            <p className="mt-4 text-2xl text-gold">
+              {Number(product.price).toLocaleString("ar-SA")} ر.س
+            </p>
+
+            {product.description_ar && (
+              <p className="mt-6 text-ivory/70 leading-relaxed">{product.description_ar}</p>
+            )}
+
+            {product.is_digital && (
+              <p className="mt-4 text-sm text-gold/70">منتج رقمي — توصيل فوري</p>
+            )}
+
+            <div className="mt-8 flex items-center gap-4">
+              <div className="flex border border-bronze/50">
+                <button
+                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  className="px-4 py-2 hover:text-gold transition"
+                >
+                  −
+                </button>
+                <span className="px-6 py-2">{qty}</span>
+                <button
+                  onClick={() => setQty(qty + 1)}
+                  className="px-4 py-2 hover:text-gold transition"
+                >
+                  +
+                </button>
+              </div>
+              <button
+                onClick={addToCart}
+                className="bg-gold px-8 py-3 text-sm text-stone hover:bg-gold/90 transition"
+              >
+                {added ? "تمت الإضافة ✓" : "أضف للسلة"}
+              </button>
+            </div>
+
+            <p className="mt-4 text-xs text-ivory/40">
+              {product.stock > 0 ? `متوفر (${product.stock})` : "غير متوفر حالياً"}
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
