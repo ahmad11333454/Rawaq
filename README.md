@@ -1,6 +1,6 @@
 # رواق (Rawaq)
 
-منصة تجارة إلكترونية فاخرة — Next.js + PostgreSQL + Prisma
+منصة تجارة إلكترونية فاخرة بـ Next.js و PostgreSQL و Prisma.
 
 ## الألوان
 
@@ -12,17 +12,42 @@
 ## التشغيل
 
 ```bash
+# 1. انسخ متغيرات البيئة
+cp .env.example .env.local
+
+# 2. ثبّت الحزم
 npm install
-cp .env.local.example .env.local
-# عدّل DATABASE_URL
-npx prisma db push
+
+# 3. شغّل الترحيل على PostgreSQL
+psql $DATABASE_URL -f prisma/migrations/001_init/migration.sql
+
+# 4. ولّد Prisma Client
+npx prisma generate
+
+# 5. شغّل السيرفر
 npm run dev
 ```
 
-## هيكل المشروع
+الموقع يفتح على http://localhost:3000
 
-- `app/` — الصفحات وواجهات API
-- `components/` — مكوّنات واجهة المستخدم
-- `lib/` — طبقة قاعدة البيانات
-- `prisma/` — مخطط قاعدة البيانات
-- `public/` — الشعار والأصول
+## الصفحات
+
+- `/` — الرئيسية
+- `/store` — المتجر مع فلترة تصنيفات
+- `/product/[slug]` — تفاصيل المنتج
+- `/cart` — السلة
+- `/about` — من نحن
+- `/contact` — تواصل
+
+## API
+
+- `GET /api/products` — قائمة المنتجات (فلتر: `?category=oud`)
+- `GET /api/products/[slug]` — منتج واحد
+
+## الشحن
+
+سعر ثابت: ١٥ ريال سعودي لكل طلب.
+
+## الترخيص
+
+خاص — جميع الحقوق محفوظة © ٢٠٢٦ رواق
