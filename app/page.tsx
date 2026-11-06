@@ -1,19 +1,21 @@
+import Link from "next/link";
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-stone text-ivory" dir="rtl">
       <header className="border-b border-bronze/40">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <a href="/">
+          <Link href="/">
             <img src="/logo.svg" alt="رواق" className="h-10" />
-          </a>
+          </Link>
           <nav className="flex gap-8 text-sm tracking-wide">
-            <a href="/store" className="hover:text-gold transition">المتجر</a>
-            <a href="/about" className="hover:text-gold transition">من نحن</a>
-            <a href="/contact" className="hover:text-gold transition">تواصل</a>
+            <Link href="/store" className="hover:text-gold transition">المتجر</Link>
+            <Link href="/about" className="hover:text-gold transition">من نحن</Link>
+            <Link href="/contact" className="hover:text-gold transition">تواصل</Link>
           </nav>
-          <a href="/cart" className="rounded border border-gold/50 px-4 py-2 text-sm hover:bg-gold hover:text-stone transition">
+          <Link href="/cart" className="rounded border border-gold/50 px-4 py-2 text-sm hover:bg-gold hover:text-stone transition">
             السلة (٠)
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -28,12 +30,12 @@ export default function HomePage() {
               عطور oud، زيوت فاخرة، ومنتجات رقمية مختارة بعناية. كل قطعة تحمل توقيع رواق.
             </p>
             <div className="mt-10 flex gap-4">
-              <a href="/store" className="bg-gold px-8 py-3 text-sm text-stone hover:bg-gold/90 transition">
+              <Link href="/store" className="bg-gold px-8 py-3 text-sm text-stone hover:bg-gold/90 transition">
                 تسوّق الآن
-              </a>
-              <a href="/about" className="border border-ivory/30 px-8 py-3 text-sm hover:border-gold transition">
+              </Link>
+              <Link href="/about" className="border border-ivory/30 px-8 py-3 text-sm hover:border-gold transition">
                 تعرّف علينا
-              </a>
+              </Link>
             </div>
           </div>
           <div className="flex justify-center">
@@ -50,11 +52,15 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-6 py-20">
           <div className="mb-12 flex items-end justify-between">
             <h2 className="text-3xl font-light">أحدث المنتجات</h2>
-            <a href="/store" className="text-sm text-gold hover:underline">عرض الكل</a>
+            <Link href="/store" className="text-sm text-gold hover:underline">عرض الكل</Link>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
-              <ProductCard key={i} />
+              <div key={i} className="group block border border-bronze/40 bg-stone p-4 transition hover:border-gold/60">
+                <div className="aspect-square bg-bronze/20" />
+                <h3 className="mt-4 text-sm">منتج {i}</h3>
+                <p className="mt-1 text-gold">٠ ر.س</p>
+              </div>
             ))}
           </div>
         </div>
@@ -63,9 +69,9 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid gap-10 md:grid-cols-3">
           {[
-            { title: "شحن ثابت", desc: "رسوم شحن واضحة ١٥ ريال لكل طلب داخل السعودية." },
-            { title: "منتجات رقمية", desc: "توصيل فوري عبر رابط تحميل آمن بعد الدفع." },
-            { title: "جودة مضمونة", desc: "منتجات مختارة من موردين موثوقين بعقود حماية." },
+            { title: "شحن ثابت", desc: "خمسة عشر ريالاً على كل طلب داخل المملكة، مهما كان حجمه." },
+            { title: "منتجات رقمية", desc: "ملفات ومحتوى رقمي يوصل فوراً بعد الدفع." },
+            { title: "فروع متعددة", desc: "مخزون متزامن بين فروع جدة والرياض تلقائياً." },
           ].map((f) => (
             <div key={f.title} className="border-t border-gold/40 pt-6">
               <h3 className="text-lg text-gold">{f.title}</h3>
@@ -79,15 +85,5 @@ export default function HomePage() {
         جميع الحقوق محفوظة © ٢٠٢٦ رواق
       </footer>
     </main>
-  );
-}
-
-function ProductCard() {
-  return (
-    <a href="/product/1" className="group block border border-bronze/40 bg-stone p-4 transition hover:border-gold/60">
-      <div className="aspect-square bg-bronze/20" />
-      <h3 className="mt-4 text-sm group-hover:text-gold transition">اسم المنتج</h3>
-      <p className="mt-1 text-gold">٠ ر.س</p>
-    </a>
   );
 }
