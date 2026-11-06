@@ -12,9 +12,9 @@ model Category {
   nameAr     String    @map("name_ar")
   slug       String    @unique
   parentId   String?   @map("parent_id") @db.Uuid
+  sortOrder  Int       @default(0) @map("sort_order")
   parent     Category? @relation("CategoryChildren", fields: [parentId], references: [id])
   children   Category[] @relation("CategoryChildren")
-  sortOrder  Int       @default(0) @map("sort_order")
   products   Product[]
 
   @@map("categories")
@@ -34,7 +34,7 @@ model Product {
   isDigital        Boolean           @default(false) @map("is_digital")
   imageUrl         String?           @map("image_url")
   status           String            @default("draft")
-  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   orderItems       OrderItem[]
   branchStock      BranchStock[]
   productSuppliers ProductSupplier[]
@@ -92,40 +92,40 @@ model Customer {
   phone     String?  @unique
   name      String?
   email     String?
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   orders    Order[]
 
   @@map("customers")
 }
 
 model Order {
-  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId      String?     @map("customer_id") @db.Uuid
-  customer        Customer?   @relation(fields: [customerId], references: [id])
-  branchId        String?     @map("branch_id") @db.Uuid
-  branch          Branch?     @relation(fields: [branchId], references: [id])
-  status          String      @default("pending")
-  subtotal        Decimal     @db.Decimal(10, 2)
-  shippingFee     Decimal     @default(15) @map("shipping_fee") @db.Decimal(10, 2)
-  total           Decimal     @db.Decimal(10, 2)
-  paymentMethod   String?     @map("payment_method")
-  shippingAddress Json?       @map("shipping_address")
-  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
-  items           OrderItem[]
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId     String?     @map("customer_id") @db.Uuid
+  customer       Customer?   @relation(fields: [customerId], references: [id])
+  branchId       String?     @map("branch_id") @db.Uuid
+  branch         Branch?     @relation(fields: [branchId], references: [id])
+  status         String      @default("pending")
+  subtotal       Decimal     @db.Decimal(10, 2)
+  shippingFee    Decimal     @default(15) @map("shipping_fee") @db.Decimal(10, 2)
+  total          Decimal     @db.Decimal(10, 2)
+  paymentMethod  String?     @map("payment_method")
+  shippingAddress Json?      @map("shipping_address")
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  items          OrderItem[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId          String            @map("order_id") @db.Uuid
-  order            Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId        String            @map("product_id") @db.Uuid
-  product          Product           @relation(fields: [productId], references: [id])
-  quantity         Int
-  unitPrice        Decimal           @map("unit_price") @db.Decimal(10, 2)
-  isDigital        Boolean           @default(false) @map("is_digital")
-  digitalDelivery  DigitalDelivery[]
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId         String            @map("order_id") @db.Uuid
+  order           Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String            @map("product_id") @db.Uuid
+  product         Product           @relation(fields: [productId], references: [id])
+  quantity        Int
+  unitPrice       Decimal           @map("unit_price") @db.Decimal(10, 2)
+  isDigital       Boolean           @default(false) @map("is_digital")
+  digitalDelivery DigitalDelivery[]
 
   @@map("order_items")
 }
@@ -135,8 +135,8 @@ model DigitalDelivery {
   orderItemId  String    @map("order_item_id") @db.Uuid
   orderItem    OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   downloadUrl  String    @map("download_url")
-  expiresAt    DateTime? @map("expires_at") @db.Timestamptz
-  downloadedAt DateTime? @map("downloaded_at") @db.Timestamptz
+  expiresAt    DateTime? @map("expires_at") @db.Timestamptz(6)
+  downloadedAt DateTime? @map("downloaded_at") @db.Timestamptz(6)
 
   @@map("digital_deliveries")
 }

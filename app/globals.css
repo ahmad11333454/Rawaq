@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --stone: #12110e;
+  --ivory: #F3EFE6;
+  --gold: #C6A15B;
+  --bronze: #3A342A;
+}
+
+body {
+  background: var(--stone);
+  color: var(--ivory);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--stone);
+}
